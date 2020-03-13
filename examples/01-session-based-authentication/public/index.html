@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in - Admin Accounts</title>
+  <style>
+    * {box-sizing: border-box;}
+    input { width: 100%; padding: 1em; font-size: 18px;}
+    input[type="submit"] { background-color: blue;color:#fff; }
+  </style>
+</head>
+<body>
+  <h1>Sign in - only admin allowed</h1>
+  <form id="sign-in-form" action="/signin" method="POST">
+    <input class="form-fields" type="email" name="email" placeholder="example@example.com"><br/>
+    <input class="form-fields" type="password" name="password" placeholder="password">
+    <input type="submit" value="Sign in">
+  </form> 
+  <pre>
+    Admin authentication information
+
+    email:
+      admin@admin.com
+
+    password:
+      password
+  </pre>
+  <script>
+    const signInForm = document.getElementById("sign-in-form");
+    const fields = document.querySelectorAll(".form-fields");
+
+    const signIn = e => {
+      e.preventDefault();
+
+      const values = Array.from(fields).reduce(
+        (prv, cur) => ({ ...prv, [cur.name]: cur.value }),
+        {}
+      );
+
+      fetch("/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values)
+      })
+      .then(res => res.json())
+      .then(messages => {
+        console.log(messages)
+        location.replace('/admin')
+      });
+    };
+
+    signInForm.addEventListener("submit", signIn);
+  </script>
+</body>
+</html>

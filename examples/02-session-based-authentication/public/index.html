@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in - Admin Accounts</title>
+  <style>
+    * {box-sizing: border-box;}
+    input { width: 100%; padding: 1em; font-size: 18px;}
+    input[type="submit"] { background-color: blue;color:#fff; }
+    button { padding: 1em; font-size: 18px; width: 100%; background-color: blue;color:#fff; }
+  </style>
+</head>
+<body>
+  <h1>Sign in - only admin allowed</h1>
+  <form id="sign-in-form" action="/signin" method="POST">
+    <input class="form-fields" type="email" name="email" placeholder="example@example.com"><br/>
+    <input class="form-fields" type="password" name="password" placeholder="password">
+    <input type="submit" value="Sign in">
+  </form> 
+  <button id="sign-out-button" style="display: none;">
+    Sign out
+  </button>
+
+  <pre>
+    Admin authentication information
+
+    email:
+      admin@admin.com
+
+    password:
+      password
+  </pre>
+  <form id="admin-form" action="/admin" method="GET" style="display: none;">
+    <input type="submit" value="Get admin data">
+  </form>
+  <pre id="admin-data"></pre>
+  <script>
+    const signInForm = document.getElementById("sign-in-form");
+    const signOutButton = document.getElementById("sign-out-button");
+    const fields = document.querySelectorAll(".form-fields");
+    const adminForm = document.getElementById('admin-form');
+    const adminData = document.getElementById('admin-data')
+
+    const changeStyle = (isSignOut) => {
+      if (isSignOut) {
+        signInForm.style.display = "block";
+        adminForm.style.display = "none";
+        signOutButton.style.display = "none";
+      } else {
+        signInForm.style.display = "none";
+        adminForm.style.display = "block";
+        signOutButton.style.display = "block";
+      }
+    }
+
+    const auth = (url, method, token, payload) => {
+      const headers = token ? {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      } : {
+        "Content-Type": "application/json",
+      }
+      return fetch(url, { method, headers, body: JSON.stringify(payload) });
+    }
+
+    const signIn = e => {
+      e.preventDefault();
+
+      const values = Array.from(fields).reduce(
+        (prv, cur) => ({ ...prv, [cur.name]: cur.value }),
+        {}
+      );
+
+      auth("/signin", "POST", undefined, values)
+      .then(res => res.json())
+      .then(messages => {
+        console.log(messages)
+        if (messages.token) {
+          localStorage.setItem('token', messages.token)
+        }
+        changeStyle(!localStorage.token)
+      });
+    };
+
+    const getAdminData = e => {
+      e.preventDefault();
+      auth("/admin", "GET", localStorage.getItem("token"))
+      .then(res => res.json())
+      .then(messages => {
+        adminData.innerHTML = JSON.stringify(messages, null, 2)
+      })
+    }
+
+    signInForm.addEventListener("submit", signIn);
+    adminForm.addEventListener("submit", getAdminData);
+    signOutButton.addEventListener("click", e => {
+      localStorage.clear();
+      location.reload();
+    });
+    changeStyle(!localStorage.token)
+  </script>
+</body>
+</html>

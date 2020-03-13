@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "routes": [
+    { 
+      "src": "/api/intercept", 
+      "methods": ["POST"],
+      "headers": {
+        "cache-control": "no-cache",
+        "Access-Control-Allow-Origin": "*"
+      },
+      "status": 200, 
+      "dest": "/api/intercept.ts" 
+    },
+    { "src": "/(.*)", "status": 404, "dest": "/404.html" }
+  ]
+}

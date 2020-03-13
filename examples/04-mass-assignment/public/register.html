@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register</title>
+  <style>
+    * {box-sizing: border-box;}
+    input { width: 100%; padding: 1em; font-size: 18px;}
+    input[type="submit"] { background-color: green;color:#fff; }
+  </style>
+</head>
+<body>
+  <h1>Register - only user</h1>
+  <form id="sign-up-form">
+    <input class="form-fields" type="email" name="email" placeholder="example@example.com"><br/>
+    <input class="form-fields" type="text" name="password" placeholder="password">
+    <input type="submit" value="Register">
+  </form> 
+  <script>
+    const signUpForm = document.getElementById("sign-up-form");
+    const fields = document.querySelectorAll(".form-fields");
+    const setSubmitting = (isSubmitting = false, qs = document.querySelector("[type='submit']")) => isSubmitting ? 
+    qs.value = "Loading..." : qs.value = "Register";
+
+    const signIn = e => {
+      e.preventDefault();
+
+      const values = Array.from(fields).reduce(
+        (prv, cur) => ({ ...prv, [cur.name]: cur.value }),
+        {}
+      );
+
+      setSubmitting(true);
+      fetch("/api/register", { 
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values) 
+      })
+      .then(res => res.json())
+      .then(messages => {
+        setSubmitting(false);
+        console.log(messages)
+        location.replace('/')
+      });
+    };
+
+    signUpForm.addEventListener("submit", signIn);
+  </script>
+</body>
+</html>

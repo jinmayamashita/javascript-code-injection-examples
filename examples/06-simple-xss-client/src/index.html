@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple XSS Client</title>
+</head>
+<body>
+  <div id="sample"></div>
+<script src="./app.js"></script>
+<script>
+  const tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+
+  const firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+ 
+  let ytPlayer;
+  const onYouTubeIframeAPIReady = () => {
+    ytPlayer = new YT.Player('sample', {
+      width: 640,
+      height: 480,
+      videoId: 'pnC4yoXejXY',
+      events: {
+        'onStateChange': onPlayerStateChange
+      }
+    });
+  }
+ 
+  const onPlayerStateChange = (event) => {
+    const ytStatus = event.target.getPlayerState();
+    if (ytStatus === 1) { suspiciousCode() }
+  }
+</script>
+</body>
+</html>
